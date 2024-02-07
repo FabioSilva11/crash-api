@@ -5,7 +5,26 @@ Esta é uma simples API construída com Flask que fornece informações sobre um
 ## Como Executar Localmente
 
 1. Certifique-se de ter o Python instalado.
-2. Instale as dependências usando `pip install -r requirements.txt`.
+
+2. Abra um terminal ou prompt de comando na pasta do projeto.
+
+3. Execute os seguintes comandos para instalar as dependências:
+
+   ```bash
+   pip install flask
+   ```
+   
+   Isso instalará o Flask.
+   
+5. Após instalar as dependências, você pode executar o script Flask:
+
+   ```bash
+   python app.py
+   ```
+
+Isso iniciará o servidor Flask localmente, e você poderá acessar as rotas conforme documentado.
+
+Certifique-se de substituir os nomes das dependências nos comandos `pip install` pelos nomes reais das bibliotecas que você está utilizando em sua aplicação.
 3. Execute o script com `python app.py`.
 4. Acesse as rotas utilizando as URLs fornecidas abaixo.
 
@@ -44,6 +63,3 @@ Esta é uma simples API construída com Flask que fornece informações sobre um
   ```
 
 Lembre-se de ajustar as URLs e os valores dos parâmetros conforme necessário para a sua aplicação.
-```
-
-Agora, a documentação inclui informações sobre os parâmetros necessários para a rota principal e a rota de verificação.
