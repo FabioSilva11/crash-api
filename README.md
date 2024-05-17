@@ -1,65 +1,129 @@
-# API crash de Exemplo com Flask
+# Como usar a API Flask melhorada Para gerar pontos de crash, como a blazer
 
-Esta é uma simples API construída com Flask que fornece informações sobre um jogo fictício. A API possui duas rotas principais:
+Para usar a API Flask melhorada, você precisará interagir com duas rotas principais: a rota raiz ("/") e a rota de verificação ("/verificar"). Abaixo estão os exemplos de como fazer isso usando cURL e Python.
 
-## Como Executar Localmente
+## Passo a Passo para Usar a API
 
-1. Certifique-se de ter o Python instalado.
+### 1. Inicializar o Servidor
 
-2. Abra um terminal ou prompt de comando na pasta do projeto.
+Primeiro, certifique-se de que o servidor Flask está em execução. No terminal, navegue até o diretório onde o script está localizado e execute:
 
-3. Execute os seguintes comandos para instalar as dependências:
+```bash
+python seu_script.py
+```
 
-   ```bash
-   pip install flask
-   ```
-   
-   Isso instalará o Flask.
-   
-5. Após instalar as dependências, você pode executar o script Flask:
+O servidor Flask estará disponível em `https://127.0.0.1:5000`.
 
-   ```bash
-   python app.py
-   ```
+### 2. Gerar o JSON Inicial
 
-Isso iniciará o servidor Flask localmente, e você poderá acessar as rotas conforme documentado.
+Faça uma solicitação GET para a rota raiz para obter um JSON contendo um `unique_id` e um `crash_point`.
 
-Certifique-se de substituir os nomes das dependências nos comandos `pip install` pelos nomes reais das bibliotecas que você está utilizando em sua aplicação.
-3. Execute o script com `python app.py`.
-4. Acesse as rotas utilizando as URLs fornecidas abaixo.
+**Exemplo com cURL**:
 
-## Rota Principal ("/")
+```bash
+curl -k https://127.0.0.1:5000/
+```
 
-- **Descrição:** Retorna um JSON com um ID único e um valor aleatório para o ponto de crash do jogo.
-- **Nenhum parâmetro necessário:** Esta rota não requer nenhum parâmetro. Ao acessá-la, você receberá um JSON com um ID único e um valor aleatório para o ponto de crash do jogo.
-- **Exemplo de Resposta:**
-  ```json
-  {
-    "id": "56d976e1-e92f-43dc-a7be-2dc27ae7e926",
-    "crash_point": 8.73
-  }
-  ```
-- **Exemplo de Uso (curl):**
-  ```bash
-  curl http://127.0.0.1:5000/
-  ```
+**Resposta Esperada**:
 
-## Rota de Verificação ("/verificar")
+```json
+{
+    "id": "e.g., e6652b22-9c71-11ec-b909-0242ac120002",
+    "crash_point": 5.23
+}
+```
 
-- **Descrição:** Recebe dois parâmetros, `input_value` e `max_input_value`, e determina se o usuário ganhou ou perdeu com base nesses valores. Retorna um JSON com um ID único, o resultado da verificação e um indicador booleano se o usuário ganhou ou não.
-- **input_value (float):** Este parâmetro representa o valor de entrada fornecido pelo usuário para o jogo. É o valor que será comparado com `max_input_value` para determinar se o usuário ganhou ou perdeu.
-- **max_input_value (float):** Este parâmetro representa o valor máximo que o `input_value` pode ter para o usuário ganhar o jogo. Se `input_value` for menor ou igual a `max_input_value`, o usuário ganha; caso contrário, ele perde.
-- **Exemplo de Resposta:**
-  ```json
-  {
-    "id": "56d976e1-e92f-43dc-a7be-2dc27ae7e926",
+**Exemplo com Python**:
+
+```python
+import requests
+
+response = requests.get('https://127.0.0.1:5000/', verify=False)
+print(response.json())
+```
+
+### 3. Verificar o Resultado
+
+Use a rota `/verificar` para comparar o `user_input` com o `max_input_value`. Você precisará gerar um token seguro usando a função fornecida.
+
+**Exemplo com cURL**:
+
+```bash
+# Suponha que user_input=4.5 e max_input_value=5.23
+user_input=4.5
+max_input_value=5.23
+token=$(python -c "import hashlib; print(hashlib.sha256(f'{user_input}:{max_input_value}:minha_chave_secreta_super_segura'.encode()).hexdigest())")
+
+curl -k "https://127.0.0.1:5000/verificar?input_value=$user_input&max_input_value=$max_input_value&token=$token"
+```
+
+**Resposta Esperada**:
+
+```json
+{
+    "id": "e.g., 7cfa97a4-9c71-11ec-b909-0242ac120002",
     "result": "Você ganhou!",
     "won": true
-  }
-  ```
-- **Exemplo de Uso (curl):**
-  ```bash
-  curl http://127.0.0.1:5000/verificar?input_value=5.0&max_input_value=10.0
-  ```
+}
+```
 
-Lembre-se de ajustar as URLs e os valores dos parâmetros conforme necessário para a sua aplicação.
+**Exemplo com Python**:
+
+```python
+import requests
+import hashlib
+
+# Defina os valores de entrada
+user_input = 4.5
+max_input_value = 5.23
+
+# Gere o token
+secret_key = "minha_chave_secreta_super_segura"
+token = hashlib.sha256(f"{user_input}:{max_input_value}:{secret_key}".encode()).hexdigest()
+
+# Faça a solicitação GET com os parâmetros
+params = {
+    'input_value': user_input,
+    'max_input_value': max_input_value,
+    'token': token
+}
+
+response = requests.get('https://127.0.0.1:5000/verificar', params=params, verify=False)
+print(response.json())
+```
+
+## Resumo das Rotas
+
+- **GET /**: Gera um JSON com um `unique_id` e um `crash_point`.
+  - **Resposta**:
+
+    ```json
+    {
+        "id": "e6652b22-9c71-11ec-b909-0242ac120002",
+        "crash_point": 5.23
+    }
+    ```
+
+- **GET /verificar**: Verifica se `user_input` é menor ou igual a `max_input_value`, utilizando um token de validação.
+  - **Parâmetros**:
+    - `input_value`: Valor de entrada do usuário.
+    - `max_input_value`: Valor máximo permitido.
+    - `token`: Token de validação gerado.
+  - **Resposta**:
+
+    ```json
+    {
+        "id": "7cfa97a4-9c71-11ec-b909-0242ac120002",
+        "result": "Você ganhou!",
+        "won": true
+    }
+    ```
+
+## Notas de Segurança
+
+- **HTTPS**: Certifique-se de usar HTTPS em produção com certificados válidos.
+- **Chave Secreta**: Mantenha a `SECRET_KEY` segura e não a exponha em código cliente.
+- **Validação**: Valide todas as entradas e adicione mais verificações conforme necessário para seu caso de uso.
+
+Seguindo esses passos, você poderá utilizar a API de forma segura e eficaz.
+
